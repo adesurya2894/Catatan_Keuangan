@@ -11,6 +11,7 @@ class CustomDrawer extends StatefulWidget {
 class _CustomDrawerState extends State<CustomDrawer> {
   String _name = 'Nama';
   String _email = 'Email';
+  String _avatarUrl = '';
 
   @override
   void initState() {
@@ -23,6 +24,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
     setState(() {
       _name = prefs.getString('registered_name') ?? 'Nama';
       _email = prefs.getString('registered_email') ?? 'Email';
+      _avatarUrl = prefs.getString('profile_image') ?? '';
     });
   }
 
@@ -33,15 +35,18 @@ class _CustomDrawerState extends State<CustomDrawer> {
         padding: EdgeInsets.zero,
         children: [
           DrawerHeader(
-            decoration: const BoxDecoration(color: Colors.blue),
+            decoration: const BoxDecoration(color: Colors.teal),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 30,
-                  backgroundImage: NetworkImage(
-                    'https://i.pravatar.cc/150?img=3',
-                  ),
+                  backgroundColor: Colors.white,
+                  backgroundImage:
+                      _avatarUrl.isNotEmpty ? NetworkImage(_avatarUrl) : null,
+                  child: _avatarUrl.isEmpty
+                      ? const Icon(Icons.person, size: 30, color: Colors.grey)
+                      : null,
                 ),
                 const SizedBox(height: 10),
                 Text(
@@ -80,11 +85,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
           ListTile(
             leading: const Icon(Icons.settings),
             title: const Text('Pengaturan'),
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Fitur belum tersedia')),
-              );
-            },
+            onTap: () => Navigator.pushReplacementNamed(context, '/setting'),
           ),
           const Divider(),
           ListTile(
@@ -92,13 +93,11 @@ class _CustomDrawerState extends State<CustomDrawer> {
             title: const Text('Logout'),
             onTap: () async {
               final prefs = await SharedPreferences.getInstance();
-              await prefs.clear(); // ✅ Hapus semua data yang tersimpan
-
+              await prefs.clear();
               Navigator.pushNamedAndRemoveUntil(
                 context,
                 '/login',
-                (Route<dynamic> route) =>
-                    false, // ✅ Hapus semua route sebelumnya
+                (Route<dynamic> route) => false,
               );
             },
           ),

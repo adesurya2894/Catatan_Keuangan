@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/custom_appbar.dart';
 import '../widgets/custom_drawer.dart';
 import '../widgets/custom_buttom_nav.dart';
+import 'edit_profil_page.dart';
 
 class ProfilPage extends StatefulWidget {
   const ProfilPage({super.key});
@@ -12,12 +13,12 @@ class ProfilPage extends StatefulWidget {
 }
 
 class _ProfilPageState extends State<ProfilPage> {
-  int _selectedIndex = 2; // ✅ Profil = index ke-2
+  int _selectedIndex = 2;
 
-  // Tambahkan variabel untuk data pengguna
   String _name = '-';
   String _email = '-';
   String _phone = '-';
+  String _avatarUrl = '';
 
   @override
   void initState() {
@@ -31,6 +32,7 @@ class _ProfilPageState extends State<ProfilPage> {
       _name = prefs.getString('registered_name') ?? '-';
       _email = prefs.getString('registered_email') ?? '-';
       _phone = prefs.getString('registered_phone') ?? '-';
+      _avatarUrl = prefs.getString('profile_image') ?? '';
     });
   }
 
@@ -54,13 +56,24 @@ class _ProfilPageState extends State<ProfilPage> {
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text(
-              'Profil Pengguna',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
             const SizedBox(height: 20),
+            GestureDetector(
+              onTap: () {
+                // Future: bisa dipakai untuk pilih avatar dari dialog
+              },
+              child: CircleAvatar(
+                radius: 50,
+                backgroundColor: Colors.grey[200],
+                backgroundImage:
+                    _avatarUrl.isNotEmpty ? NetworkImage(_avatarUrl) : null,
+                child: _avatarUrl.isEmpty
+                    ? const Icon(Icons.person, size: 50, color: Colors.grey)
+                    : null,
+              ),
+            ),
+            const SizedBox(height: 16),
             ListTile(
               leading: const Icon(Icons.person),
               title: const Text('Nama Lengkap'),
@@ -80,6 +93,21 @@ class _ProfilPageState extends State<ProfilPage> {
               leading: Icon(Icons.lock),
               title: Text('Status'),
               subtitle: Text('Login Aktif'),
+            ),
+            const SizedBox(height: 20),
+            Center(
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const EditProfilPage(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.edit),
+                label: const Text('Edit Profil'),
+              ),
             ),
           ],
         ),

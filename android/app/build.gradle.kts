@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.app_pertamaku"
+    namespace = "com.divinesia.catatan_keuangan"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 

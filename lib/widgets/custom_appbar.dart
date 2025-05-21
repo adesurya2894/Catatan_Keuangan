@@ -10,8 +10,17 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: Colors.teal,
       centerTitle: true,
-      title: Text(title, style: const TextStyle(color: Colors.white)),
-      leading: Icon(Icons.flutter_dash_rounded, color: Colors.white),
+      title: Text(
+        title,
+        style: const TextStyle(color: Colors.white),
+      ),
+      leading: const Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Icon(
+          Icons.account_balance_wallet_outlined, // ✅ Ikon catatan keuangan
+          color: Colors.white,
+        ),
+      ),
       actions: [
         Builder(
           builder: (context) => IconButton(

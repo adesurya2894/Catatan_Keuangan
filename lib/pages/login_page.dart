@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:catatan_keuangan/services/user_service.dart';
 import 'home_page.dart';
 import 'register_page.dart';
+import 'package:crypto/crypto.dart';
+import 'dart:convert';
+
+String hashPassword(String password) {
+  return sha256.convert(utf8.encode(password)).toString();
+}
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -20,21 +27,51 @@ class _LoginPageState extends State<LoginPage> {
     final emailInput = _emailController.text.trim();
     final passwordInput = _passwordController.text;
 
-    final prefs = await SharedPreferences.getInstance();
-    final registeredEmail = prefs.getString('registered_email') ?? '';
-    final registeredPassword = prefs.getString('registered_password') ?? '';
+    if (!emailInput.contains('@')) {
+      setState(() => _errorMessage = 'Format email tidak valid!');
+      return;
+    }
+    if (passwordInput.length < 6) {
+      setState(() => _errorMessage = 'Password minimal 6 karakter!');
+      return;
+    }
 
-    if (emailInput == registeredEmail && passwordInput == registeredPassword) {
-      // ✅ Set is_logged_in to true
-      await prefs.setBool('is_logged_in', true);
+    try {
+      final user = await UserService.getUserByEmail(emailInput);
+      final hashedInput = hashPassword(passwordInput);
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomePage()),
-      );
-    } else {
+      if (user != null && user.password == hashedInput) {
+        if (user.status != 'aktif') {
+          setState(() => _errorMessage = 'Akun Anda belum aktif.');
+          return;
+        }
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('is_logged_in', true);
+        await prefs.setString('user_id', user.id!);
+        await prefs.setString('registered_name', user.name);
+        await prefs.setString('registered_email', user.email);
+        await prefs.setString('registered_phone', user.phone);
+        await prefs.setString('profile_image', user.avatar ?? '');
+        await prefs.setString('registered_password', user.password);
+
+        _emailController.clear();
+        _passwordController.clear();
+        setState(() => _errorMessage = null);
+
+        if (!mounted) return;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+      } else {
+        setState(() {
+          _errorMessage = 'Email atau password salah!';
+        });
+      }
+    } catch (e) {
       setState(() {
-        _errorMessage = 'Email atau password salah!';
+        _errorMessage = 'Terjadi kesalahan saat login';
       });
     }
   }

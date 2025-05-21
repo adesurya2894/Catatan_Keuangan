@@ -1,31 +1,50 @@
 import 'package:flutter/material.dart';
-import 'package:app_pertamaku/pages/login_page.dart';
-import 'package:app_pertamaku/pages/home_page.dart';
-import 'package:app_pertamaku/pages/riwayat_page.dart';
-import 'package:app_pertamaku/pages/profil_page.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:provider/provider.dart';
+import 'package:catatan_keuangan/pages/login_page.dart';
+import 'package:catatan_keuangan/pages/home_page.dart';
+import 'package:catatan_keuangan/pages/riwayat_page.dart';
+import 'package:catatan_keuangan/pages/profil_page.dart';
+import 'package:catatan_keuangan/pages/setting_page.dart';
+import 'package:catatan_keuangan/providers/theme_notifier.dart';
 
-void main() => runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('id', null);
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeNotifier(), // ✅ Inisialisasi theme dinamis
+      child: const MyApp(),
+    ),
+  );
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final themeNotifier =
+        Provider.of<ThemeNotifier>(context); // ✅ Dapatkan tema
+
     return MaterialApp(
-      title: 'My Super App',
+      title: 'Catatan Keuangan',
       theme: ThemeData(
         primarySwatch: Colors.teal,
+        brightness: Brightness.light,
       ),
-
-      // ✅ Halaman awal langsung ke Login
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        primarySwatch: Colors.teal,
+      ),
+      themeMode: themeNotifier.themeMode, // ✅ Terapkan mode tema
       home: const LoginPage(),
-
-      // ✅ Semua route disiapkan untuk navigasi
       routes: {
         '/login': (context) => const LoginPage(),
         '/home': (context) => const HomePage(),
         '/riwayat': (context) => const RiwayatPage(),
         '/profil': (context) => const ProfilPage(),
+        '/setting': (context) => const SettingPage(),
       },
     );
   }

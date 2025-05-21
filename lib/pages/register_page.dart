@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'login_page.dart';
+import '../models/user_model.dart';
+import '../services/user_service.dart';
+import 'package:crypto/crypto.dart';
+import 'dart:convert';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -17,6 +20,10 @@ class _RegisterPageState extends State<RegisterPage> {
   final _confirmPasswordController = TextEditingController();
 
   String? _errorMessage;
+
+  String hashPassword(String password) {
+    return sha256.convert(utf8.encode(password)).toString();
+  }
 
   void _register() async {
     final name = _nameController.text.trim();
@@ -36,6 +43,20 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
+    if (!email.contains('@')) {
+      setState(() {
+        _errorMessage = 'Format email tidak valid!';
+      });
+      return;
+    }
+
+    if (password.length < 6) {
+      setState(() {
+        _errorMessage = 'Password minimal 6 karakter!';
+      });
+      return;
+    }
+
     if (password != confirmPassword) {
       setState(() {
         _errorMessage = 'Password tidak cocok!';
@@ -43,33 +64,47 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
-    // ✅ Simpan data ke SharedPreferences
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('registered_name', name);
-    await prefs.setString('registered_phone', phone);
-    await prefs.setString('registered_email', email);
-    await prefs.setString('registered_password', password);
+    try {
+      const defaultAvatarUrl = 'https://i.pravatar.cc/150?img=10';
 
-    // ✅ Tampilkan AlertDialog sukses
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Berhasil!'),
-        content: const Text('Pendaftaran berhasil. Silakan login.'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Tutup dialog
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginPage()),
-              );
-            },
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
+      final newUser = UserModel(
+        name: name,
+        email: email,
+        phone: phone,
+        password: hashPassword(password),
+        status: 'aktif',
+        dateCreated: DateTime.now().toIso8601String(),
+        avatar: defaultAvatarUrl,
+      );
+
+      await UserService.registerUser(newUser);
+
+      if (!mounted) return;
+
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Berhasil!'),
+          content: const Text('Pendaftaran berhasil. Silakan login.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                );
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Gagal daftar. Coba lagi nanti.';
+      });
+    }
   }
 
   @override
