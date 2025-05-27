@@ -93,6 +93,40 @@ flutter build apk --release
 
 ---
 
+## 🗃️ Basis Data Mock (MockAPI)
+
+Aplikasi ini menggunakan REST API dari [MockAPI](https://mockapi.io) untuk simulasi data pengguna dan transaksi.
+
+### 🔗 Endpoint yang digunakan:
+- **Users:** https://....mockapi.io/api/v1/users
+- **Transactions:** https://....mockapi.io/api/v1/transactions
+
+### 📦 Schema untuk Resource `users`
+| Field        | Type       | Keterangan                 |
+|--------------|------------|----------------------------|
+| `id`         | Object ID  | ID unik otomatis           |
+| `name`       | String     | Nama pengguna              |
+| `email`      | String     | Alamat email               |
+| `phone`      | String     | Nomor telepon              |
+| `status`     | String     | Status akun (aktif/nonaktif) |
+| `password`   | String     | Kata sandi pengguna        |
+| `avatar`     | String     | URL atau base64 gambar     |
+| `dateCreated`| String     | Tanggal pembuatan akun     |
+
+### 📦 Schema untuk Resource `transactions`
+| Field        | Type       | Keterangan                 |
+|--------------|------------|----------------------------|
+| `id`         | Object ID  | ID transaksi unik          |
+| `userId`     | String     | ID user pemilik transaksi  |
+| `tipe`       | String     | 'pemasukan' atau 'pengeluaran' |
+| `kategori`   | String     | Jenis transaksi (Makan, Gaji, dll) |
+| `jumlah`     | String     | Nilai transaksi (positif/negatif) |
+| `keterangan` | String     | Deskripsi transaksi        |
+| `tanggal`    | String     | Waktu transaksi dibuat     |
+| `createdAt`  | String     | Timestamp transaksi        |
+
+---
+
 ## 🤝 Kontribusi
 
 Kontribusi terbuka untuk siapa saja. Fork repo ini, buat fitur baru atau perbaikan, lalu buat pull request.
