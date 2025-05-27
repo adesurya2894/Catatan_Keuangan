@@ -1,43 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:provider/provider.dart';
+import 'package:catatan_keuangan/pages/login_page.dart';
+import 'package:catatan_keuangan/pages/home_page.dart';
+import 'package:catatan_keuangan/pages/riwayat_page.dart';
+import 'package:catatan_keuangan/pages/profil_page.dart';
+import 'package:catatan_keuangan/pages/setting_page.dart';
+import 'package:catatan_keuangan/providers/theme_notifier.dart';
 
-void main() => runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('id', null);
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeNotifier(), // ✅ Inisialisasi theme dinamis
+      child: const MyApp(),
+    ),
+  );
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-  // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context) {
+    final themeNotifier =
+        Provider.of<ThemeNotifier>(context); // ✅ Dapatkan tema
+
     return MaterialApp(
-      // Application name
-      title: 'Flutter Hello World',
-      // Application theme data, you can set the colors for the application as
-      // you want
+      title: 'Catatan Keuangan',
       theme: ThemeData(
-        // useMaterial3: false,
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.teal,
+        brightness: Brightness.light,
       ),
-      // A widget which will be started on application startup
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
-
-class MyHomePage extends StatelessWidget {
-  final String title;
-  const MyHomePage({super.key, required this.title});  
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        // The title text which will be shown on the action bar
-        title: Text(title),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        primarySwatch: Colors.teal,
       ),
-      body: Center(
-        child: Text(
-          'Hello, World!',
-        ),
-      ),
+      themeMode: themeNotifier.themeMode, // ✅ Terapkan mode tema
+      home: const LoginPage(),
+      routes: {
+        '/login': (context) => const LoginPage(),
+        '/home': (context) => const HomePage(),
+        '/riwayat': (context) => const RiwayatPage(),
+        '/profil': (context) => const ProfilPage(),
+        '/setting': (context) => const SettingPage(),
+      },
     );
   }
 }
